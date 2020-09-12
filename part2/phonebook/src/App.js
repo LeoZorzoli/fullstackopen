@@ -11,16 +11,11 @@ const App = () => {
   const [ filterPerson, setFilterPerson] = useState('')
 
   useEffect(() => {
-    console.log('effect')
-  
-    const eventHandler = response => {
-      console.log('promise fulfilled')
-      setPersons(response.data)
-    }
-  
-    const promise = axios.get('http://localhost:3001/persons')
-    promise.then(eventHandler)
-    console.log(promise)
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
   }, [])
 
   const addName = (event) => {
