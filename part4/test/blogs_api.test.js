@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const jwt = require('jsonwebtoken')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+
+const globals = {}
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -14,6 +17,18 @@ beforeEach(async () => {
 
   blogObject = new Blog(helper.initialBlogs[1])
   await blogObject.save()
+
+  const savedUsers = await helper.usersInDb()
+
+  const userForTest = {
+    username: savedUsers[0].username,
+    id: savedUsers[0].id,
+  }
+
+  const token = jwt.sign(userForTest, process.env.SECRET)
+
+  globals.token = `bearer ${token}`
+  globals.tokenId = userForTest.id
 })
 
 
@@ -24,7 +39,7 @@ describe ('getting blogs', () => {
       .expect('Content-Type', /application\/json/)
   })
 
-  test('there are one blog', async () => {
+  test('total blogs', async () => {
     const response = await api.get('/api/blogs')
 
     expect(response.body).toHaveLength(2)
@@ -40,7 +55,10 @@ describe ('getting blogs', () => {
 describe('testing blogs validations', () => {
   test('valid blog added', async () => {
     const newBlog = new Blog(helper.validBlog)
-    await api.post('/api/blogs')
+    await api
+      .post('/api/blogs')
+      .set('Authorization', globals.token)
+      .set('Content-Type', 'application/json')
       .send(newBlog)
       .expect(200)
 
@@ -56,8 +74,11 @@ describe('testing blogs validations', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', globals.token)
+      .set('Content-Type', 'application/json')
       .send(newBlog)
       .expect('Content-Type', /application\/json/)
+      .expect(200)
 
     expect(response.body.likes).toBe(0)
   })
@@ -68,6 +89,8 @@ describe('testing blogs validations', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', globals.token)
+      .set('Content-Type', 'application/json')
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
@@ -79,17 +102,20 @@ describe('testing blogs validations', () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
+    console.log('BLOG TO DELETE', blogToDelete.id)
+
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', globals.token)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
 
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
 
-    const titles = blogsAtEnd.map(b => b.title)
+    const blogsId = blogsAtEnd.map(b => b.id)
 
-    expect(titles).not.toContain(blogToDelete.title)
+    expect(blogsId).not.toContain(blogToDelete.id)
   })
 
   test('blog edited', async () => {
@@ -99,6 +125,7 @@ describe('testing blogs validations', () => {
 
     await api
       .put(`/api/blogs/${blogToEdit.id}`)
+      .set('Authorization', globals.token)
       .send(edit)
       .expect(200)
 

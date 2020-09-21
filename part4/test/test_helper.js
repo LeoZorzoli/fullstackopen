@@ -1,6 +1,12 @@
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+const testUser = {
+  name: 'example User',
+  username: 'example',
+  password: 'example',
+}
+
 const initialBlogs = [
   {
     title: 'title example 1',
@@ -50,4 +56,5 @@ module.exports = {
   blogWithoutLikes,
   invalidBlog,
   usersInDb,
+  testUser
 }
