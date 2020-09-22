@@ -1,22 +1,15 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const jwt = require('jsonwebtoken')
+const Blog = require('../models/blog')
 const helper = require('./test_helper')
 const app = require('../app')
-const api = supertest(app)
 
-const Blog = require('../models/blog')
+const api = supertest(app)
 
 const globals = {}
 
 beforeEach(async () => {
-  await Blog.deleteMany({})
-
-  let blogObject = new Blog(helper.initialBlogs[0])
-  await blogObject.save()
-
-  blogObject = new Blog(helper.initialBlogs[1])
-  await blogObject.save()
 
   const savedUsers = await helper.usersInDb()
 
@@ -99,8 +92,18 @@ describe('testing blogs validations', () => {
   })
 
   test('blog deleted', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+
+    const newBlog = await helper.validBlog
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', globals.token)
+      .set('Content-Type', 'application/json')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogToDelete = response.body
 
     console.log('BLOG TO DELETE', blogToDelete.id)
 
@@ -112,9 +115,7 @@ describe('testing blogs validations', () => {
     const blogsAtEnd = await helper.blogsInDb()
 
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
-
     const blogsId = blogsAtEnd.map(b => b.id)
-
     expect(blogsId).not.toContain(blogToDelete.id)
   })
 
