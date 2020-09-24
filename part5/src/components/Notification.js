@@ -5,17 +5,17 @@ const Notification = ({ message, status }) => {
     return null
   }
 
-const successStyle = {
+  const successStyle = {
     color: 'green',
     fontSize: 20,
     marginBottom: 10,
   }
 
-const errorStyle = {
+  const errorStyle = {
     color: 'red',
     fontSize: 20,
     marginBottom: 10,
-}
+  }
 
   if(status === 1) {
     return (
