@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Toggable from './components/Togglable'
+import BlogsList from './components/BlogsList'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [message, setMessage] = useState(null)
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -20,8 +20,9 @@ const App = () => {
   useEffect(() => {
     blogService
       .getAll()
-      .then(blogs => {
-        setBlogs( blogs )
+      .then(blogList => {
+        sortBlogs( blogList )
+        setBlogs( blogList )
       })
   }, [])
 
@@ -52,7 +53,9 @@ const App = () => {
       user: blogObject.user.id,
     }
 
-    blogService.update(id, updatedBlog)
+    blogService
+      .update(id, updatedBlog)
+    sortBlogs(blogs)
     setBlogs(blogs.map((blog) => (blog.id !== id ? blog : updatedBlog)))
   }
 
@@ -83,7 +86,9 @@ const App = () => {
       setStatus(1)
       setUsername('')
       setPassword('')
-      setTimeout(() => { setMessage(null)
+      setTimeout(() => {
+        setMessage(null)
+        setStatus(null)
       }, 3000)
 
     } catch(exception) {
@@ -91,6 +96,7 @@ const App = () => {
       setStatus(2)
       setTimeout(() => {
         setMessage(null)
+        setStatus(null)
       }, 3000)
     }
   }
@@ -103,6 +109,7 @@ const App = () => {
     setStatus(1)
     setTimeout(() => {
       setMessage(null)
+      setStatus(null)
     }, 3000)
   }
 
@@ -133,6 +140,12 @@ const App = () => {
       </div>
     )}
 
+  const sortBlogs = blogs => {
+    return blogs.sort((a, b) => {
+      return b.likes - a.likes
+    })
+  }
+
   return (
     <div>
       <Notification status={status} message={message} />
@@ -145,10 +158,7 @@ const App = () => {
         </div>
       }
 
-      <h2>Blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={updateLike} removeBlog={deleteBlog}/>
-      )}
+      <BlogsList blogs={blogs} likeblog={updateLike} removeBlog={deleteBlog}/>
     </div>
   )
 }
