@@ -20,21 +20,19 @@ const Toggable = React.forwardRef((props, ref) => {
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonOpen}</button>
+        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
       </div>
-      <div style={showWhenVisible}>
+      <div style={showWhenVisible} className="togglableContent">
         {props.children}
-        <button onClick={toggleVisibility}>{props.buttonClose}</button>
+        <button onClick={toggleVisibility}>cancel</button>
       </div>
     </div>
   )
 })
 
 Toggable.displayName = 'Toggable'
-
 Toggable.propTypes = {
-  buttonOpen: PropTypes.string.isRequired,
-  buttonClose: PropTypes.string.isRequired
+  buttonLabel: PropTypes.string.isRequired,
 }
 
 export default Toggable

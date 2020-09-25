@@ -18,7 +18,7 @@ const Blog = ({ blog, likeBlog, removeBlog }) => {
 
   if(showDetails){
     return(
-      <div style={blogStyle}>
+      <div className='blog' style={blogStyle}>
         {blog.title}
         <button onClick={toggleShowDetails}>Hide</button>
         <div>
@@ -37,8 +37,8 @@ const Blog = ({ blog, likeBlog, removeBlog }) => {
   }
 
   return(
-    <div style={blogStyle}>
-      {blog.title}
+    <div className='blog' style={blogStyle}>
+      {blog.title} {blog.author}
       <button onClick={toggleShowDetails}>View</button>
     </div>
   )
