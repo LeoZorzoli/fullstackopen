@@ -21,7 +21,6 @@ const App = () => {
     blogService
       .getAll()
       .then(blogList => {
-        sortBlogs( blogList )
         setBlogs( blogList )
       })
   }, [])
@@ -44,7 +43,7 @@ const App = () => {
       })
   }
 
-  const updateLike = (event, id) => {
+  const updateLike = async (event, id) => {
     const blogObject = blogs.find(blog => blog.id === id)
 
     const updatedBlog = {
@@ -53,20 +52,26 @@ const App = () => {
       user: blogObject.user.id,
     }
 
-    blogService
-      .update(id, updatedBlog)
-    sortBlogs(blogs)
-    setBlogs(blogs.map((blog) => (blog.id !== id ? blog : updatedBlog)))
+    const returnedBlog = await blogService.update(id, updatedBlog)
+    setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
   }
 
   const deleteBlog = async (event, id, title) => {
-    const deleteAlert = window.confirm(`Delete ${title}`)
+    try{
+      const deleteAlert = window.confirm(`Delete ${title}`)
+      if(!deleteAlert) return
 
-    if(!deleteAlert) return
+      await blogService.remove(id)
 
-    await blogService.remove(id)
-
-    setBlogs(blogs.filter((blog) => blog.id !== id ))
+      setBlogs(blogs.filter((blog) => blog.id !== id ))
+    } catch(exception) {
+      setMessage('Wrong credentials')
+      setStatus(2)
+      setTimeout(() => {
+        setMessage(null)
+        setStatus(null)
+      }, 3000)
+    }
   }
 
   const handleLogin = async (event) => {
@@ -140,11 +145,10 @@ const App = () => {
       </div>
     )}
 
-  const sortBlogs = blogs => {
-    return blogs.sort((a, b) => {
-      return b.likes - a.likes
-    })
-  }
+  const sortBlogs = [...blogs].sort((currentBlog, nextBlog) => {
+    return nextBlog.likes - currentBlog.likes
+  })
+
 
   return (
     <div>
@@ -158,7 +162,7 @@ const App = () => {
         </div>
       }
 
-      <BlogsList blogs={blogs} likeblog={updateLike} removeBlog={deleteBlog}/>
+      <BlogsList blogs={sortBlogs} likeblog={updateLike} removeBlog={deleteBlog}/>
     </div>
   )
 }

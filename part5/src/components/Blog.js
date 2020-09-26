@@ -19,7 +19,7 @@ const Blog = ({ blog, likeBlog, removeBlog }) => {
   if(showDetails){
     return(
       <div className='blog' style={blogStyle}>
-        {blog.title}
+        <span className='title'>{blog.title}</span>
         <button onClick={toggleShowDetails}>Hide</button>
         <div>
           {blog.url}

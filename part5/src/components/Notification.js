@@ -25,7 +25,7 @@ const Notification = ({ message, status }) => {
     )
   } else if(status === 2) {
     return (
-      <div style={errorStyle}>
+      <div className='error' style={errorStyle}>
         {message}
       </div>
     )
