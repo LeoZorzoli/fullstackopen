@@ -9,19 +9,9 @@ const Notification = () => {
     padding: 10,
     borderWidth: 1
   }
-  if (notification !== ''){
-    return (
-      <div style={style}>
-        you voted {notification}
-      </div>
-    )
-  } else {
-    return(
-      <div>
-
-      </div>
-    )
-  }
+  return notification !== '' ? 
+    <div style={style}> {notification.message} {notification.data} </div> 
+    : <> </>
 
 }
 
