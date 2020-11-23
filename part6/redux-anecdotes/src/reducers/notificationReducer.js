@@ -1,3 +1,5 @@
+const initialState = ""
+
 
 export const createNotification = (message, time) => {
     return async dispatch => {
@@ -19,12 +21,13 @@ export const deleteNotification = () => {
     }
 }   
 
-const notificationReducer = (state = "", action) => {
+const notificationReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'SET_NOTIFICATION':
-            return action
+            clearTimeout(state.delay)
+            return action.data
         case 'DELETE_NOTIFICATION':
-            return ""
+            return initialState
         default:
             return state
     }
