@@ -1,0 +1,28 @@
+{
+  "notes": [
+    {
+      "content": "Custom Hooks",
+      "id": 1
+    },
+    {
+      "content": "Fullstack Open Curse",
+      "id": 2
+    },
+    {
+      "content": "Buena partida",
+      "id": 3
+    }
+  ],
+  "persons": [
+    {
+      "name": "leonel",
+      "number": "0600-581-111",
+      "id": 1
+    },
+    {
+      "name": "Martin",
+      "number": "1556657",
+      "id": 2
+    }
+  ]
+}
