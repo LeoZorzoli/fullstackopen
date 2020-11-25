@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImphdmllciIsImlkIjoiNWY2OTEyYzBkOTEyZGUxODQ4Yjg3MDhjIiwiaWF0IjoxNjAwNzIxODYyfQ.JRfdYD7UudqjD9O1h_75hCg0AR6rtuywRmseJN19W_4
+
+{
+    "title": "blog post example 2",
+    "url": "blogpostexample2.com",
+    "likes": 6,
+    "userId": "5f6912c0d912de1848b8708c"
+}
