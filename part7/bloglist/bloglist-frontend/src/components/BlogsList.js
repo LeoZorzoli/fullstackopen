@@ -1,6 +1,7 @@
 import React from 'react'
 import Blog from './Blog'
 import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 const Blogs = () => {
 
@@ -11,10 +12,11 @@ const Blogs = () => {
   })
 
   const blogList = sortBlogs.map(blog => (
-    <Blog
+    <Link to={`/blogs/${blog.id}`}><Blog
       key={blog.id}
       blog={blog}
     />
+    </Link>
   ))
 
   return (

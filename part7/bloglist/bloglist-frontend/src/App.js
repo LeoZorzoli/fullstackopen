@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 
 import blogService from './services/blogs'
 
+import Navbar from './components/Navbar'
+
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
@@ -44,18 +46,6 @@ const App = () => {
     blogService.setToken(user?.token)
   }, [user])
 
-  const updateLike = async (event, id) => {
-    const blogObject = blogs.find(blog => blog.id === id)
-
-    const updatedBlog = {
-      ...blogObject,
-      likes: blogObject.likes + 1,
-      user: blogObject.user.id,
-    }
-
-    const returnedBlog = await blogService.update(id, updatedBlog)
-    setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
-  }
   
   const handleLogout = async () => {
     dispatch(logout())
@@ -82,8 +72,6 @@ const App = () => {
 
   return (
     <div>
-      <Notification />
-
       {user === null 
         ? loginForm() 
         : <div>
@@ -91,8 +79,9 @@ const App = () => {
             {blogForm()}
           </div>
       }
+      <Navbar />
+      <Notification />
 
-      <BlogsList likeblog={updateLike} />
     </div>
   )
 }
