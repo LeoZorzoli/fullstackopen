@@ -1,37 +1,67 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route, useParams } from 'react-router-dom' 
+import { Link } from 'react-router-dom' 
+import { useDispatch, useSelector } from 'react-redux'
+import { Navbar, Nav, Container } from 'react-bootstrap'
+import { logout } from '../reducers/loginReducer'
+import './Navbar.css'
 
-import UsersPage from './pages/UsersPages'
-import User from './pages/User'
-import HomePage from './pages/HomePage'
-import Blog from './pages/Blog'
+const NavbarComponent = () => {
+    const user = useSelector(state => state.login)
 
-const Navbar = () => {
+    const dispatch = useDispatch()
 
-    return(
-        <div>
-            <Router>
-                <Switch>
-                    <Route exact path="/">
-                        <HomePage />
-                    </Route>
+    const handleLogout = async () => {
+        dispatch(logout())
+    }
 
-                    <Route exact path="/users">
-                        <UsersPage />
-                    </Route>
+    if(user){
+        return(
+            <Container>
+                <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                    <Navbar.Collapse id="responsive-navbar-nav">
+                        <Nav className="mr-auto">
+                            <Nav.Link href="#" as="span">
+                                <Link className="nav-link linkStyle" to="/">Blogs</Link>
+                            </Nav.Link>
+                            <Nav.Link href="#" as="span">
+                                <Link className="nav-link linkStyle" to="/users">Users</Link>
+                            </Nav.Link>
+                            <Nav.Link href="#" as="span">
+                                <Link className="nav-link linkStyle" to="/newblog">New Blog</Link>
+                            </Nav.Link>
+                        </Nav>
+                        <Nav className="ml-auto">
+                            <Nav.Link href="#" as="span">
+                                <Link to="/" className="nav-link linkStyle" onClick={handleLogout} >Logout</Link>
+                            </Nav.Link>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Navbar>
+            </Container>
 
-                    <Route path="/users/:id">
-                        <User />
-                    </Route>
-
-                    <Route path="/blogs/:id">
-                        <Blog />
-                    </Route>
-
-                </Switch>
-            </Router>
-        </div>
-    )
+        )
+    } else {
+        return(
+            <Container>
+                <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                    <Navbar.Collapse id="responsive-navbar-nav">
+                        <Nav className="mr-auto">
+                            <Nav.Link href="#" as="span">
+                                <Link className="nav-link linkStyle" to="/">Blogs</Link>
+                            </Nav.Link>
+                        </Nav>
+                        <Nav className="ml-auto">
+                            <Nav.Link href="#" as="span">
+                                <Link className="nav-link linkStyle" to="/login">Login</Link>
+                            </Nav.Link>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Navbar>
+            </Container>
+        )
+    }
 }
 
-export default Navbar
+export default NavbarComponent

@@ -1,19 +1,12 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import './Blog.css'
 
-const Blog = ({ blog }) => {
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 4,
-    paddingBottom: 10,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
+export const Blog = ({ blog }) => {
 
   return(
-    <div className='blog' style={blogStyle}>
-      {blog.title} 
+    <div className='blogStyle' >
+      <Link to={`/blogs/${blog.id}`}> {blog.title} </Link>
     </div>
   )
 }

@@ -1,28 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
+
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom' 
 
 import blogService from './services/blogs'
 
-import Navbar from './components/Navbar'
+import NavbarComponent from './components/Navbar'
 
 import Notification from './components/Notification'
-import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
-import Toggable from './components/Togglable'
-import BlogsList from './components/BlogsList'
+
+import HomePage from './components/pages/HomePage'
+import BlogPage from './components/pages/BlogPage'
+import UserPages from './components/pages/UsersPages'
+import UserPage from './components/pages/UserPage'
+import LoginPage from './components/pages/LoginPage'
+import NewBlog from './components/pages/NewBlog'
 
 import { initialBlogs } from './reducers/blogReducer'
 
-import { logout } from './reducers/loginReducer'
 import { initialUsers } from './reducers/userReducer'
 
 import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
 
   const user = useSelector(state => state.login)
-
-  const blogFormRef = useRef()
 
   const dispatch = useDispatch()
 
@@ -46,42 +47,35 @@ const App = () => {
     blogService.setToken(user?.token)
   }, [user])
 
-  
-  const handleLogout = async () => {
-    dispatch(logout())
-  }
-
-  const loginForm = () => {
-    return(
-      <div>
-        <Toggable buttonLabel="Login">
-          <LoginForm />
-        </Toggable>
-      </div>
-    )
-  }
-
-  const blogForm = () => {
-    return(
-      <div>
-        <Toggable buttonLabel="New blog" ref={blogFormRef}>
-          <BlogForm />
-        </Toggable>
-      </div>
-    )}
 
   return (
     <div>
-      {user === null 
-        ? loginForm() 
-        : <div>
-            <p>{user.name} <button onClick={handleLogout}>Logout</button></p>
-            {blogForm()}
-          </div>
-      }
-      <Navbar />
-      <Notification />
-
+      <Router>
+        <NavbarComponent />
+        <div>
+          <Notification />
+          <Switch>
+            <Route exact path='/'>
+              <HomePage />
+            </Route>
+            <Route exact path="/login">
+              <LoginPage />
+            </Route>
+            <Route exact path='/newblog'>
+              <NewBlog />
+            </Route>
+            <Route exact path='/blogs/:id'>
+              <BlogPage />
+            </Route>
+            <Route exact path='/users'>
+              <UserPages />
+            </Route>
+            <Route exact path='/users/:id'>
+              <UserPage />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
     </div>
   )
 }
