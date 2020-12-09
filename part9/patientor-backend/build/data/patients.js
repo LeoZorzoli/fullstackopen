@@ -1,6 +1,5 @@
-import { PatientsType } from '../src/types';
-
-const patientsList: PatientsType[] = [
+"use strict";
+[
     {
         "id": "d2773336-f723-11e9-8f0b-362b9e155667",
         "name": "John McClane",
@@ -42,5 +41,3 @@ const patientsList: PatientsType[] = [
         "occupation": "Digital evangelist"
     }
 ];
-
-export default patientsList;
