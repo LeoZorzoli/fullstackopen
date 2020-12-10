@@ -1,21 +1,29 @@
 import React from 'react'
+import { CoursePart } from '../types'
+import { assertNever } from '../utils'
+import Part from "./Part";
 
-const Part: React.FC<{ part: any }> = ({ part }) => {
-    return (
-        <div>
-            <p>{part.name} {part.exerciseCount}</p>
-        </div>
-    )
+interface ContentProps {
+    courseParts: CoursePart[];
 }
 
-const Content: React.FC<{ courseParts: any }> = ({ courseParts }) => {
-    return (
-        <div>
-            {courseParts.map((part: any) => (
-                <Part key={part.id} part={part} />
-            ))}
-        </div>
-    )
+const Content: React.FC<ContentProps> = ({ courseParts }) => {
+    const parts = courseParts.map(coursePart => {
+        switch(coursePart.name) {
+            case "Fundamentals":
+                return <Part key={coursePart.name} coursePart={coursePart} />;
+            case "Using props to pass data":
+                return <Part key={coursePart.name} coursePart={coursePart} />;
+            case "Deeper type usage":
+                return <Part key={coursePart.name} coursePart={coursePart} />;
+            case "New course":
+                return <Part key={coursePart.name} coursePart={coursePart} />;
+            default:
+                return assertNever(coursePart);
+        }
+    })
+
+    return <React.Fragment>{parts}</React.Fragment>;
 }
 
-export default Content
+export default Content;
