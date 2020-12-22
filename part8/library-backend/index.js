@@ -66,17 +66,17 @@ const typeDefs = gql`
   }
 
   type Author {
-      name: String
+      name: String!
       born: Int
-      bookCount: Int!
+      books: [Book]
   }
 
   type Query {
       bookCount: Int!
       authorCount: Int!
       findUser (username: String): User
-      allBooks (author: String, genre: String): [Book]
-      allAuthors: [Author!]!  
+      allBooks: [Book]
+      allAuthors: [Author]
       me: User  
   }
 `
@@ -86,17 +86,11 @@ const resolvers = {
       bookCount: () => Book.collection.countDocuments(),
       authorCount: () => Author.collection.countDocuments(),
       findUser: (root, args) => User.findOne({ username: args.username }),
-      allBooks: (root, args) => {
-          if (args.genre) {
-            return books.filter(b => b.genres.includes(args.genre))
-          } else if (args.author) {
-            return books.filter(b => b.author.name === args.author)
-          } else {
-            return books
-          }
-        },
-      allAuthors: (root, args) => {
-        return Author.find({})
+      allBooks: async (root, args) => {
+          return await Book.find({}).populate('author')
+      },
+      allAuthors: async (root, args) => {
+          return await Author.find({}).populate('books')
       },
       me: (root, args, context) => {
         return context.currentUser
@@ -106,28 +100,42 @@ const resolvers = {
   Author: {
       name: (root) => root.name,
       born: (root) => root.born,
-      bookCount: (root) => {
-          const count = books.filter(b => b.author === root.name)
-          return count.length
-      }
   },
 
   Mutation: {
       addBook: async (root, args, context) => {
-          const author = new Author ({ name: args.author })
-          const authorExist = Author.findOne({name: author.name})
-          const currentUser = context.currentUser
-
-          if (!currentUser) {
-            throw new AuthenticationError("Not authenticated")
-          }
-
+          let book
           try {
-            if (!authorExist) {
-              await author.save()
+            const author = await Author.findOne({name: args.author})
+            const currentUser = context.currentUser
+
+            if (!currentUser) {
+              throw new AuthenticationError("Not authenticated")
             }
-            const book = new Book({ ...args, id: uuid(), author: author})
-            await book.save()
+
+              if (author) {
+                book = new Book({ ...args, author: author._id})
+                author.books = author.books.concat(book._id)
+
+                await author.save()
+                await book.save()
+              }
+
+              if (!author) {
+                const _id = mongoose.Types.ObjectId()
+                book = new Book({ ...args, author: _id });
+
+                author = new Author({
+                  name: args.author,
+                  born: null,
+                  _id,
+                  books: [book._id]
+                })
+
+                await author.save()
+                await book.save()
+              }
+              
           } catch (error) {
             throw new UserInputError(error.message, {
               invalidArgs: args,
