@@ -1,8 +1,9 @@
 require('dotenv').config()
-const { ApolloServer, UserInputError, gql, AuthenticationError } = require('apollo-server')
+const { ApolloServer, UserInputError, gql, AuthenticationError, PubSub } = require('apollo-server')
 const mongoose = require('mongoose')
 const { v1: uuid } = require('uuid')
 const jwt = require('jsonwebtoken')
+const pubsub = new PubSub()
 
 let MONGODB_URI = process.env.MONGODB_URI
 let JWT_SECRET = process.env.JWT_SECRET
@@ -31,6 +32,10 @@ const typeDefs = gql`
 
   type Token {
     value: String!
+  }
+
+  type Subscription {
+    bookAdded: Book!
   }
 
   type Mutation {
@@ -66,7 +71,7 @@ const typeDefs = gql`
   }
 
   type Author {
-      name: String!
+      name: String
       born: Int
       books: [Book]
   }
@@ -78,6 +83,7 @@ const typeDefs = gql`
       allBooks: [Book]
       allAuthors: [Author]
       me: User  
+      recommends: [Book]
   }
 `
 
@@ -94,6 +100,19 @@ const resolvers = {
       },
       me: (root, args, context) => {
         return context.currentUser
+      },
+      recommends: async (root, args, context) => {
+        const currentUser = context.currentUser
+        if(currentUser){
+          const booksToShow = await Book.find({
+            genres: {
+              $in: [currentUser.favoriteGenre]
+            }
+          }).populate('author')
+          return booksToShow
+        } else {
+          return await Book.find({}).populate('author')
+        }
       }
   },
 
@@ -125,14 +144,14 @@ const resolvers = {
                 const _id = mongoose.Types.ObjectId()
                 book = new Book({ ...args, author: _id });
 
-                author = new Author({
+                const newAuthor = new Author({
                   name: args.author,
                   born: null,
                   _id,
                   books: [book._id]
                 })
 
-                await author.save()
+                await newAuthor.save()
                 await book.save()
               }
               
@@ -141,6 +160,9 @@ const resolvers = {
               invalidArgs: args,
             })
           }
+
+          pubsub.publish('BOOK_ADDED', { bookAdded: book })
+
           return book
       },
       editAuthor: async (root, args, context) => {
@@ -190,6 +212,11 @@ const resolvers = {
     
         return { value: jwt.sign(userForToken, JWT_SECRET) }
       }
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED'])
+    }
   }
 }
 
@@ -208,6 +235,7 @@ const server = new ApolloServer({
   }
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`)
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`)
 })

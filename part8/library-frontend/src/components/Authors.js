@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 
-import { UPDATE_AUTHOR, ALL_AUTHORS } from '../queries'
+import { ALL_AUTHORS } from '../graphql/queries'
+import { UPDATE_AUTHOR } from '../graphql/mutations'
 
 const Authors = ({show, authors, notify}) => {
 
@@ -10,7 +11,18 @@ const Authors = ({show, authors, notify}) => {
   const [ born, setBorn ] = useState('')
 
   const [ changeBorn, result ] = useMutation(UPDATE_AUTHOR, {
-    refetchQueries: [ { query: ALL_AUTHORS }]
+    update: (store, response) => {
+      const dataInStore = store.readQuery({ query: ALL_AUTHORS })
+      store.writeQuery({
+        query: ALL_AUTHORS,
+        data: {
+          ...dataInStore,
+          allAuthors: [ ...dataInStore.allAuthors.map(author => 
+            author.name === response.data.editAuthor.name ? author.born === response.data.editAuthor.born : author.born
+          )]
+        }
+      })
+    }
   })
 
   useEffect(() => {

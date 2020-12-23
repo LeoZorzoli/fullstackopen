@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
-import { LOGIN } from '../queries'
+import { LOGIN } from '../graphql/mutations'
 
-const Login = ({ setError, setToken, show }) => {
+const Login = ({ setError, setToken, show, setPage }) => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
     const [login, result] = useMutation(LOGIN, {
         onError: (error) => {
             setError(error.graphQLErrors[0].messages)
-        }
+        },
     })
 
     useEffect(() => {
@@ -22,12 +22,12 @@ const Login = ({ setError, setToken, show }) => {
 
     if (!show) {
         return null
-      }
+    }
 
     const submit = async (event) => {
         event.preventDefault()
-        login({ variables: { username, password } })
-        show = 'authors'
+        await login({ variables: { username, password } })
+        setPage('authors')
     }
 
     return (
