@@ -6,13 +6,9 @@ const Recommend = ({ books, show }) => {
     const booksByGenre = useQuery(BOOKS_BY_GENRE)
     const user = useQuery(CURRENT_USER)
 
-    if (!show || user === null) {
+    if (!show || user === null || !booksByGenre.data) {
         return null
     }
-
-    if (booksByGenre.loading) {
-        return <div>loading...</div>
-    } 
 
     const booksToShow = booksByGenre.data.recommends
 
